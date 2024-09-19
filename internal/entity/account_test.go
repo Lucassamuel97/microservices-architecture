@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func testCreateAccout(t *testing.T) {
+func TestCreateAccout(t *testing.T) {
 	client, _ := NewClient("samuca", "samuca@gmail.com")
 	account := NewAccount(client)
 
@@ -15,13 +15,13 @@ func testCreateAccout(t *testing.T) {
 	assert.Equal(t, client, account.Client)
 }
 
-func testCreateAccoutWhenClientIsNil(t *testing.T) {
+func TestCreateAccoutWhenClientIsNil(t *testing.T) {
 	account := NewAccount(nil)
 
 	assert.Nil(t, account)
 }
 
-func testCreditAccount(t *testing.T) {
+func TestCreditAccount(t *testing.T) {
 	client, _ := NewClient("samuca", "s@g.com")
 	account := NewAccount(client)
 
@@ -30,7 +30,7 @@ func testCreditAccount(t *testing.T) {
 	assert.Equal(t, 100.0, account.Balance)
 }
 
-func testCreditAccountWhenAmountIsInvalid(t *testing.T) {
+func TestCreditAccountWhenAmountIsInvalid(t *testing.T) {
 	client, _ := NewClient("samuca", "s@g.com")
 	account := NewAccount(client)
 
@@ -38,7 +38,7 @@ func testCreditAccountWhenAmountIsInvalid(t *testing.T) {
 	assert.Error(t, err, "invalid amount")
 }
 
-func testDebitAccount(t *testing.T) {
+func TestDebitAccount(t *testing.T) {
 	client, _ := NewClient("samuca", "s@g.com")
 	account := NewAccount(client)
 	account.Credit(100.0)
@@ -47,7 +47,7 @@ func testDebitAccount(t *testing.T) {
 	assert.Equal(t, 50.0, account.Balance)
 }
 
-func testDebitAccountWhenAmountIsInvalid(t *testing.T) {
+func TestDebitAccountWhenAmountIsInvalid(t *testing.T) {
 	client, _ := NewClient("samuca", "s@g.com")
 	account := NewAccount(client)
 	account.Credit(100.0)
