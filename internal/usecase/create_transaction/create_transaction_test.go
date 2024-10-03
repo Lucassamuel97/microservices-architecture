@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com.br/Lucassamuel97/walletcore/internal/entity"
+	"github.com.br/Lucassamuel97/walletcore/internal/event"
+	"github.com.br/Lucassamuel97/walletcore/pkg/events"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -58,7 +60,10 @@ func TestCreateTransactionUseCase_Execute(t *testing.T) {
 		Amount:        100,
 	}
 
-	uc := NewCreateTransactionUseCase(mockTransaction, mockAccount)
+	dispatcher := events.NewEventDispatcher()
+	event := event.NewTransactionCreated()
+
+	uc := NewCreateTransactionUseCase(mockTransaction, mockAccount, dispatcher, event)
 
 	// Act
 	output, err := uc.Execute(inputDto)
@@ -92,7 +97,10 @@ func TestCreateTransactionUseCase_Execute_AccountNotFound(t *testing.T) {
 		Amount:        100,
 	}
 
-	uc := NewCreateTransactionUseCase(mockTransaction, mockAccount)
+	dispatcher := events.NewEventDispatcher()
+	event := event.NewTransactionCreated()
+
+	uc := NewCreateTransactionUseCase(mockTransaction, mockAccount, dispatcher, event)
 
 	// Act
 	output, err := uc.Execute(inputDto)
