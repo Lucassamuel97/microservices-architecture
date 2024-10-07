@@ -1,19 +1,21 @@
 package createtransaction
 
 import (
+	"fmt"
+
 	"github.com.br/Lucassamuel97/walletcore/internal/entity"
 	"github.com.br/Lucassamuel97/walletcore/internal/gateway"
 	"github.com.br/Lucassamuel97/walletcore/pkg/events"
 )
 
 type CreateTransactionInputDTO struct {
-	AccountIDFrom string
-	AccountIDTo   string
-	Amount        float64
+	AccountIDFrom string  `json:"account_id_from"`
+	AccountIDTo   string  `json:"account_id_to"`
+	Amount        float64 `json:"amount"`
 }
 
 type CreateTransactionOutputDTO struct {
-	ID string
+	ID string `json:"id"`
 }
 
 type CreateTransactionUseCase struct {
@@ -38,23 +40,26 @@ func NewCreateTransactionUseCase(
 }
 
 func (uc *CreateTransactionUseCase) Execute(input CreateTransactionInputDTO) (*CreateTransactionOutputDTO, error) {
-	// Get accounts
 	accountFrom, err := uc.accountGateway.FindByID(input.AccountIDFrom)
 	if err != nil {
+		fmt.Println("Erro ao buscar conta de origem:", err)
 		return nil, err
 	}
 
 	accountTo, err := uc.accountGateway.FindByID(input.AccountIDTo)
 	if err != nil {
+		fmt.Println("Erro ao buscar conta de destino:", err)
 		return nil, err
 	}
 
 	transaction, err := entity.NewTransaction(accountFrom, accountTo, input.Amount)
 	if err != nil {
+		fmt.Println("Erro ao criar transação:", err)
 		return nil, err
 	}
 	err = uc.transactionGateway.Create(transaction)
 	if err != nil {
+		fmt.Println("Erro ao salvar transação:", err)
 		return nil, err
 	}
 
@@ -62,7 +67,6 @@ func (uc *CreateTransactionUseCase) Execute(input CreateTransactionInputDTO) (*C
 		ID: transaction.ID,
 	}
 
-	// Dispatch event
 	uc.TransactionCreated.SetPayload(output)
 	uc.EventDispatcher.Dispatch(uc.TransactionCreated)
 

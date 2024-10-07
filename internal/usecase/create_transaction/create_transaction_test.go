@@ -37,6 +37,11 @@ func (m *AccountGatewayMock) FindByID(id string) (*entity.Account, error) {
 	return nil, args.Error(1)
 }
 
+func (m *AccountGatewayMock) UpdateBalance(account *entity.Account) error {
+	args := m.Called(account)
+	return args.Error(0)
+}
+
 func TestCreateTransactionUseCase_Execute(t *testing.T) {
 	// Arrange
 	client1, _ := entity.NewClient("Client 1", "client1@gmail.com")
