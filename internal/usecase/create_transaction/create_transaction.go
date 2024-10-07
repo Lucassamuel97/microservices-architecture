@@ -1,11 +1,12 @@
 package createtransaction
 
 import (
-	"fmt"
+	"context"
 
 	"github.com.br/Lucassamuel97/walletcore/internal/entity"
 	"github.com.br/Lucassamuel97/walletcore/internal/gateway"
 	"github.com.br/Lucassamuel97/walletcore/pkg/events"
+	"github.com.br/Lucassamuel97/walletcore/pkg/uow"
 )
 
 type CreateTransactionInputDTO struct {
@@ -15,60 +16,94 @@ type CreateTransactionInputDTO struct {
 }
 
 type CreateTransactionOutputDTO struct {
-	ID string `json:"id"`
+	ID            string  `json:"id"`
+	AccountIDFrom string  `json:"account_id_from"`
+	AccountIDTo   string  `json:"account_id_to"`
+	Amount        float64 `json:"amount"`
 }
 
 type CreateTransactionUseCase struct {
-	transactionGateway gateway.TransactionGateway
-	accountGateway     gateway.AccountGateway
+	Uow                uow.UowInterface
 	EventDispatcher    events.EventDispatcherInterface
 	TransactionCreated events.EventInterface
 }
 
 func NewCreateTransactionUseCase(
-	transactionGateway gateway.TransactionGateway,
-	accountGateway gateway.AccountGateway,
+	Uow uow.UowInterface,
 	eventDispatcher events.EventDispatcherInterface,
 	transactionCreated events.EventInterface,
 ) *CreateTransactionUseCase {
 	return &CreateTransactionUseCase{
-		transactionGateway: transactionGateway,
-		accountGateway:     accountGateway,
+		Uow:                Uow,
 		EventDispatcher:    eventDispatcher,
 		TransactionCreated: transactionCreated,
 	}
 }
 
-func (uc *CreateTransactionUseCase) Execute(input CreateTransactionInputDTO) (*CreateTransactionOutputDTO, error) {
-	accountFrom, err := uc.accountGateway.FindByID(input.AccountIDFrom)
-	if err != nil {
-		fmt.Println("Erro ao buscar conta de origem:", err)
-		return nil, err
-	}
+func (uc *CreateTransactionUseCase) Execute(ctx context.Context, input CreateTransactionInputDTO) (*CreateTransactionOutputDTO, error) {
+	output := &CreateTransactionOutputDTO{}
 
-	accountTo, err := uc.accountGateway.FindByID(input.AccountIDTo)
-	if err != nil {
-		fmt.Println("Erro ao buscar conta de destino:", err)
-		return nil, err
-	}
+	// Execute transaction in a unit of work
+	err := uc.Uow.Do(ctx, func(_ *uow.Uow) error {
+		accountRepository := uc.getAccountRepository(ctx)
+		transactionRepository := uc.getTransactionRepository(ctx)
 
-	transaction, err := entity.NewTransaction(accountFrom, accountTo, input.Amount)
-	if err != nil {
-		fmt.Println("Erro ao criar transação:", err)
-		return nil, err
-	}
-	err = uc.transactionGateway.Create(transaction)
-	if err != nil {
-		fmt.Println("Erro ao salvar transação:", err)
-		return nil, err
-	}
+		accountFrom, err := accountRepository.FindByID(input.AccountIDFrom)
+		if err != nil {
+			return err
+		}
+		accountTo, err := accountRepository.FindByID(input.AccountIDTo)
+		if err != nil {
+			return err
+		}
+		transaction, err := entity.NewTransaction(accountFrom, accountTo, input.Amount)
+		if err != nil {
+			return err
+		}
 
-	output := &CreateTransactionOutputDTO{
-		ID: transaction.ID,
+		err = accountRepository.UpdateBalance(accountFrom)
+		if err != nil {
+			return err
+		}
+
+		err = accountRepository.UpdateBalance(accountTo)
+		if err != nil {
+			return err
+		}
+
+		err = transactionRepository.Create(transaction)
+		if err != nil {
+			return err
+		}
+		output.ID = transaction.ID
+		output.AccountIDFrom = input.AccountIDFrom
+		output.AccountIDTo = input.AccountIDTo
+		output.Amount = input.Amount
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	uc.TransactionCreated.SetPayload(output)
 	uc.EventDispatcher.Dispatch(uc.TransactionCreated)
 
 	return output, nil
+}
+
+func (uc *CreateTransactionUseCase) getAccountRepository(ctx context.Context) gateway.AccountGateway {
+	repo, err := uc.Uow.GetRepository(ctx, "AccountDB")
+	if err != nil {
+		panic(err)
+	}
+	return repo.(gateway.AccountGateway)
+}
+
+func (uc *CreateTransactionUseCase) getTransactionRepository(ctx context.Context) gateway.TransactionGateway {
+	repo, err := uc.Uow.GetRepository(ctx, "TransactionDB")
+	if err != nil {
+		panic(err)
+	}
+	return repo.(gateway.TransactionGateway)
 }
