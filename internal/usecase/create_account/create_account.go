@@ -1,6 +1,8 @@
 package createaccount
 
 import (
+	"fmt"
+
 	"github.com.br/Lucassamuel97/walletcore/internal/entity"
 	"github.com.br/Lucassamuel97/walletcore/internal/gateway"
 )
@@ -28,6 +30,7 @@ func NewCreateAccountUseCase(accountGateway gateway.AccountGateway, clientGatewa
 func (uc *CreateAccountUseCase) Execute(input CreateAccountInputDTO) (*CreateAccountOutputDTO, error) {
 	client, err := uc.ClientGateway.Get(input.ClientID)
 	if err != nil {
+		fmt.Println("Erro ao buscar cliente:", err)
 		return nil, err
 	}
 
@@ -35,10 +38,13 @@ func (uc *CreateAccountUseCase) Execute(input CreateAccountInputDTO) (*CreateAcc
 
 	err = uc.AccountGateway.Save(account)
 	if err != nil {
+		fmt.Println("Erro ao salvar conta:", err)
 		return nil, err
 	}
 
-	return &CreateAccountOutputDTO{
+	output := &CreateAccountOutputDTO{
 		ID: account.ID,
-	}, nil
+	}
+
+	return output, nil
 }
