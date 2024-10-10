@@ -20,6 +20,7 @@ services:
       - 3306:3306
     volumes:
       - .docker/mysql:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   zookeeper:
     image: "confluentinc/cp-zookeeper:6.1.0"
