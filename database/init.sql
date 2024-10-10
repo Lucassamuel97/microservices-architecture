@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `transactions` (
 );
 
 
-USE balance;
+USE ms_balance;
 
 CREATE TABLE IF NOT EXISTS `balance` (
   `id` varchar(255) DEFAULT NULL,
