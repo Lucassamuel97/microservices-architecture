@@ -19,20 +19,27 @@ export default class UpsertAccountUseCase  {
     input: InputUpsertAccountBalanceDto
   ): Promise<OutputUpsertAccountBalanceDto> {
 
-    let existingAccount  = await this.findBalanceRepository.execute({account_id: input.account_id});
+    let existingAccount;
 
-    if (!existingAccount) {
+    try {
+      // Tenta encontrar o saldo da conta
+      existingAccount = await this.findBalanceRepository.execute({ account_id: input.account_id });
+    } catch (error) {
+      // Se o saldo não for encontrado, cria um novo saldo
       existingAccount = await this.createBalanceUseCase.execute(input);
-    } else {
-      let inputUpdate = {
+    }
+  
+    // Se o saldo existir, atualiza o saldo
+    if (existingAccount && existingAccount.id) {
+      const inputUpdate = {
         id: existingAccount.id,
         account_id: input.account_id,
         amount: input.amount
-      }
+      };
       
       existingAccount = await this.updateBalanceUseCase.execute(inputUpdate);
     }
-
+  
     return existingAccount;
   }
 }
