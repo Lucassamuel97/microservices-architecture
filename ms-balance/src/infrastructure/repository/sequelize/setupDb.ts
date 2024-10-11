@@ -4,7 +4,7 @@ import BalanceModel from "./balance/balance.model";
 export let sequelize: Sequelize
 
 export async function setupDb() {
-    const database = process.env.DB_NAME || "balances";
+    const database = process.env.DB_NAME || "ms_balance";
     const username = process.env.DB_USERNAME || "root";
     const password = process.env.DB_PASSWORD || "root";
     const host = process.env.DB_HOST || "mysql";

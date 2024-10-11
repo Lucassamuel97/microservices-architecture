@@ -1,7 +1,8 @@
-import { app, sequelize } from "../express";
+import { app } from "../express";
 import request from "supertest";
 import { listen } from "../server";
-import { setupDb } from "../../repository/sequelize/setupDb";
+import { setupDb, sequelize } from "../../repository/sequelize/setupDb";
+import BalanceModel from "../../repository/sequelize/balance/balance.model";
 
 describe("E2E test for balance", () => {
     beforeAll(async () => {
@@ -14,24 +15,23 @@ describe("E2E test for balance", () => {
     afterAll(async () => {
         await sequelize.close();
     });
-    it("should find a product", async () => {
-        const response = await request(app)
-            .post("/product")
-            .send({
-                name: "Product",
-                price: 40,
-            });
-        expect(response.status).toBe(200);
+    it("should find a balance by account ID", async () => {
 
-        const findResponse = await request(app).get("/product/" + response.body.id);
+        const balance = await BalanceModel.create({
+            id: "b123",
+            accountId: "c123",
+            amount: 100,
+        });
+
+        const findResponse = await request(app).get("/balances/" + balance.accountId);
         expect(findResponse.status).toBe(200);
-        expect(findResponse.body.name).toBe("Product");
-        expect(findResponse.body.price).toBe(40);
+        expect(findResponse.body.account_id).toBe("c123");
+        expect(findResponse.body.amount).toBe(100);
     });
 
-    it("should not find a product with invalid id", async () => {
+    it("should not find a balance by account ID", async () => {
         const response = await request(app)
-            .get("/product/1");
+            .get("/balances/1");
         expect(response.status).toBe(500);
     });
 });
