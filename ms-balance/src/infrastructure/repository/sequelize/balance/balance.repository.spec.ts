@@ -1,7 +1,7 @@
 import { Sequelize } from "sequelize-typescript";
 import BalanceModel from "./balance.model";
 import BalanceRepository from "./balance.repository";
-import Balance from "../../domain/entity/balance";
+import Balance from "../../../../domain/entity/balance";
 
 
 describe("Balance repository test", () => {

@@ -1,5 +1,6 @@
 import Balance from "../../../domain/entity/balance";
 import CreateBalanceUseCase from "../create/create.balance.usecase";
+import FindBalanceUseCase from "../findByAccount/findByAccount.balance.usecase";
 import UpdateBalanceUseCase from "../update/update.balance.usecase";
 import UpsertAccountUseCase from "./upsertAccount.balance.usecase";
 
@@ -24,8 +25,8 @@ describe("Unit test for upsert Account balance use case", () => {
         const balanceRepository = MockRepository();
         const balanceUpdateUseCase = new UpdateBalanceUseCase(balanceRepository);
         const balancecreateUseCase = new CreateBalanceUseCase(balanceRepository);
-
-        const upsertAccountUseCase = new UpsertAccountUseCase(balanceRepository,balancecreateUseCase,balanceUpdateUseCase);
+        const findBalanceUseCase = new FindBalanceUseCase(balanceRepository);
+        const upsertAccountUseCase = new UpsertAccountUseCase(findBalanceUseCase,balancecreateUseCase,balanceUpdateUseCase);
 
         const output = await upsertAccountUseCase.execute(input);
 

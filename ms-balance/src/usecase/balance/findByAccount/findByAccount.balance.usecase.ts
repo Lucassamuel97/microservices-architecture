@@ -1,6 +1,5 @@
 import BalanceRepositoryInterface from "../../../domain/repository/balance-repository.interface";
-import { InputFindBalanceDto, OutputFindBalanceDto } from "./find.balance.dto";
-
+import { InputFindByAccountIDBalanceDto, OutputFindByAccountIDBalanceDto } from "./findByAccount.balance.dto";
 
 export default class FindBalanceUseCase {
     private balanceRepository: BalanceRepositoryInterface;
@@ -9,8 +8,8 @@ export default class FindBalanceUseCase {
         this.balanceRepository = BalanceRepository;
     }
 
-    async execute(input: InputFindBalanceDto): Promise<OutputFindBalanceDto> {
-        const balance = await this.balanceRepository.findById(input.id);
+    async execute(input: InputFindByAccountIDBalanceDto): Promise<OutputFindByAccountIDBalanceDto> {
+        const balance = await this.balanceRepository.findByAccount(input.account_id);
 
         return {
             id: balance.id,

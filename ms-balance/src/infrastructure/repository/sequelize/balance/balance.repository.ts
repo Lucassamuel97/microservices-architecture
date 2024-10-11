@@ -1,5 +1,5 @@
-import Balance from "../../domain/entity/balance";
-import BalanceRepositoryInterface from "../../domain/repository/balance-repository.interface";
+import Balance from "../../../../domain/entity/balance";
+import BalanceRepositoryInterface from "../../../../domain/repository/balance-repository.interface";
 import BalanceModel from "./balance.model";
 
 export default class BalanceRepository implements BalanceRepositoryInterface {
