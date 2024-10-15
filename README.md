@@ -17,13 +17,13 @@ Além disso, é utilizado o **Confluent Control Center**, uma ferramenta que fac
 ## Estrutura do Repositório
 
 ### Database
-    Este diretório contém o arquivo init.sql, que, ao executar o projeto pelo Docker Compose, é inserido em `/docker-entrypoint-initdb.d/init.sql`. Este arquivo é responsável pela criação e inserção de registros iniciais nas bases de dados `wallet` e `ms_balance`.
+- Este diretório contém o arquivo init.sql, que, ao executar o projeto pelo Docker Compose, é inserido em `/docker-entrypoint-initdb.d/init.sql`. Este arquivo é responsável pela criação e inserção de registros iniciais nas bases de dados `wallet` e `ms_balance`.
 
 ### Walletcore
-    O **Walletcore** é um microsserviço desenvolvido em **Go** que é responsável pelo cadastro de clientes, contas e transações. Esses dados são persistidos em um banco de dados relacional MySQL (Database nomeada como `wallet`). Sempre que uma transação é criada, um evento chamado **TransactionCreated** é disparado. Durante a transação, também ocorre a atualização do saldo das contas: a conta do cliente que realiza a transação é debitada, enquanto a conta do cliente que recebe o valor é creditada. Após a atualização do saldo, um evento **BalanceUpdated** é acionado. Esses eventos são enviados para o Kafka e armazenados nos tópicos `transactions` e `balances`.
+- O **Walletcore** é um microsserviço desenvolvido em **Go** que é responsável pelo cadastro de clientes, contas e transações. Esses dados são persistidos em um banco de dados relacional MySQL (Database nomeada como `wallet`). Sempre que uma transação é criada, um evento chamado **TransactionCreated** é disparado. Durante a transação, também ocorre a atualização do saldo das contas: a conta do cliente que realiza a transação é debitada, enquanto a conta do cliente que recebe o valor é creditada. Após a atualização do saldo, um evento **BalanceUpdated** é acionado. Esses eventos são enviados para o Kafka e armazenados nos tópicos `transactions` e `balances`.
 
 ### Ms-Balance
-    O microsserviço **Ms-Balance** é desenvolvido em **NodeJS** utilizando o **Typescript**, sendo responsável por disponibilizar um endpoint REST para a consulta do saldo de cada conta. Ele recupera os eventos publicados no tópico `balances` do Kafka e, ao fazer isso, atualiza o registro existente ou cria um novo registro contendo o Account ID e o saldo atualizado. Esses dados são persistidos em um banco de dados relacional MySQL (Database nomeada como `ms_balance`).  
+- O microsserviço **Ms-Balance** é desenvolvido em **NodeJS** utilizando o **Typescript**, sendo responsável por disponibilizar um endpoint REST para a consulta do saldo de cada conta. Ele recupera os eventos publicados no tópico `balances` do Kafka e, ao fazer isso, atualiza o registro existente ou cria um novo registro contendo o Account ID e o saldo atualizado. Esses dados são persistidos em um banco de dados relacional MySQL (Database nomeada como `ms_balance`).  
 
 ## Executando aplicação com docker-compose
 ```bash
@@ -34,7 +34,6 @@ Além disso, é utilizado o **Confluent Control Center**, uma ferramenta que fac
 
 - walletcore - Endpoints de criação de clientes, Contas e realização de transações disponivel em `walletcore/api/client.http`.
 - ms-balance - Endpoint de consulda do saldo de uma conta GET disponivel em `ms-balance/api/client.http` realizando a requesição http://localhost:3003/balances/{account_id}.
-
 
 ## Referencial teórico
 
