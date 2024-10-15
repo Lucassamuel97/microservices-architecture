@@ -54,7 +54,7 @@ USE ms_balance;
 -- Table structure for balances
 -- ----------------------------
 
-CREATE TABLE IF NOT EXISTS `balance` (
+CREATE TABLE IF NOT EXISTS `balances` (
   `id` varchar(255) DEFAULT NULL,
   `account_id` varchar(255) DEFAULT NULL,
   `amount` int(11) DEFAULT NULL
